@@ -7,7 +7,6 @@ const fs = require('fs');
  * @param {String} encoding - 编码，默认UTF-8
  */
 function FreedomReplace(replaceMent, encoding = 'UTF-8') {
-    let filename = '';
     //通过through创建流stream
     var stream = through(function(file, encoding, callback) {
 
@@ -17,17 +16,16 @@ function FreedomReplace(replaceMent, encoding = 'UTF-8') {
         }
         if (file.isBuffer()) {
             var contentStr = file.contents.toString(encoding);
-            callback && (file.contents = new Buffer(callback(contentStr)), encoding);
+            replaceMent && (file.contents = new Buffer(replaceMent(contentStr)), encoding);
         }
         if (file.isStream()) {
             var contentStr = fs.readFileSync(file.path).toString(encoding);
-            callback && (file.contents = new Buffer(callback(contentStr), encoding));
+            replaceMent && (file.contents = new Buffer(replaceMent(contentStr), encoding));
         }
         this.push(file);
         callback();
-        filename = file.name;
     }, function(callback) {
-        console.log(`${filename}处理完毕`.green);
+        console.log(`gulp-freedom-replace:处理完毕`.green);
         callback();
     });
 
